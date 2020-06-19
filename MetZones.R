@@ -62,8 +62,6 @@ start <- 6 #column where attributes start
 end<-length(header) #last attribute column
 attrib<-header[start:end]
 
-
-
 ######################################################################################
 TheYear<-unique(data[c("year")])
 
@@ -88,16 +86,11 @@ data$name<-as.factor(data$name)
 data$zone<-as.factor(data$zone)
 data$year<-as.factor(data$year)
 
-
-
 TheYear<-unique(data[c("year")])
 
 TheYearNum<-nrow(unique(data[c("year")]))
 
 TheYear[lengths(TheYear) != 0]
-
-
-
 
 ###################################################################
 
@@ -112,7 +105,6 @@ for(atr in attrib) #atr<-"maturity"
     filestr<-paste("Zone ", zonearray[j]," Predicted Means ", yeararray[i],"-",atr,".csv", sep = "")
     print(filestr)
     #zoneplavs(zonearray[j],yeararray[i],atr)
-    
     
     thiszone<-zonearray[j]
     TheYear<-yeararray[i]
@@ -153,7 +145,6 @@ for(atr in attrib) #atr<-"maturity"
     {
       model<-aov(get(at)~name+location+bloc:location+name:location,data=temp)
     }
-    
     
     summary(model)
     order<-temp %>% group_by(name) %>% summarize(n=n())
