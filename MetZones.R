@@ -19,7 +19,6 @@ library("readxl") ## just to read the data
 library("tidyverse") ## just to read the data
 library(stringr)
 
-
 options(max.print = 999999)
 options(tibble.print_max=50)
 
