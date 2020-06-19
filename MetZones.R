@@ -83,8 +83,6 @@ yeararray<-TheYear$year
 
 ##ASREML all code below this bit is patched in after the fact a bit will clean it up
 
-
-
 data$bloc<-as.factor(data$bloc)
 data$location<-as.factor(data$location)
 data$name<-as.factor(data$name)
