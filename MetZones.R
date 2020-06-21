@@ -58,7 +58,7 @@ setwd(diris)
 #Read in the data from the selected file
 data<-read_excel(DataFilename)
 
-data$environment <- paste(gsub(" ","_",data$location) , "_" , data$year, sep="")#create an envirinment attribute in the dataframe
+data$environment <- paste(gsub(" ","_",data$location) , "_" , data$year, sep="")#create an environment attribute in the dataframe
 header<-names(data)
 start <- 6 #column where attributes start
 end<-length(header) #last attribute column
