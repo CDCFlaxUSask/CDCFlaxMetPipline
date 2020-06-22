@@ -101,92 +101,6 @@ TheYearNum<-nrow(unique(data[c("year")]))
 TheYear[lengths(TheYear) != 0]
 
 
-
-
-###################################################################
-
-#loop through locations and years and call the function to build files for each zone and attribute
-i=1 #use most recent year
-
-for(atr in attrib) #atr<-"earlyvig"
-{
-  for (j in 1:nrow(uzone))#j<-1
-  {
-    #str_replace(string, pattern, replacement)
-    filestr<-paste("Zone ",zonearray[j]," Predicted Means ", yeararray[i],"-",atr,".csv", sep = "")
-    print(filestr)
-    #zoneplavs(zonearray[j],yeararray[i],atr)
-    
-    
-    thiszone<-zonearray[j]
-    TheYear<-yeararray[i]
-    at<-atr
-    
-    temp<-data  %>% filter(!is.na(get(at))) %>% filter(get(at)!=0) %>% filter(zone==zonearray[j])
-    numatr<-nrow(temp)
-    numloc=nrow(unique(temp[c("location")]))
-    numloc
-    unique(temp$zone)
-    unique(temp$location)
-    
-    #if(numatr>0)get(at)
-    #{
-    #general<-asreml(fixed=get(at)~name,data=temp)
-    #general<-asreml(fixed=get(at),data=temp)
-    
-
-    if (numloc == 1) 
-    {
-      model<-asreml(fixed=get(at)~name, random=~environment:bloc,data=temp)
-      pred<-predict(model,classify='name',data=temp)
-    }else
-    {
-      model<-asreml(fixed=get(at)~name , random=~at(environment):bloc + environment + environment:name,residual=~dsum(~units|environment),data=temp)
-      pred<-predict(model,classify='environment:name',data=temp)
-    }
-    
-    
-    
-    #pred<-predict(model,classify='environment:name',data=data)$pvals
-    filename1<-sprintf("\\Zone%s-%s.csv", thiszone,at)
-    filename<-paste(csvdir,filename1, sep = "")
-    print(paste("this is the file ", filename))
-    
-    write.table(pred$pvals, filename, append = TRUE, quote = TRUE, sep = ",",
-                eol = "\n", na = "NA", dec = ".", row.names = TRUE,
-                col.names = NA, qmethod = c("escape", "double"),
-                fileEncoding = "")
-    
-    if (numloc == 1) 
-    {
-      model<-aov(get(at)~name+bloc,data=temp)
-    }else
-    {
-      model<-aov(get(at)~name+location+bloc:location+name:location,data=temp)
-    }
-    
-    
-    summary(model)
-    order<-temp %>% group_by(name) %>% summarize(n=n())
-    max(order$n)
-    dfx<-tail(summary(model)[[1]]$`Df`, n=1)
-    msx<-tail(summary(model)[[1]]$`Mean Sq`, n=1)
-    print(abs(qt(0.05/2,dfx*1))*sqrt(msx*2/(33)))
-    lsdis<-abs(qt(0.05/2,dfx*1))*sqrt(msx*2/(33))
-    meanis=mean(temp[[at]], na.rm = TRUE)
-    stddevis=sd(temp[[at]], na.rm = TRUE)
-    cvpctis=(stddevis/meanis)*100
-    
-    
-    write.table(paste("lsd at 5%",  lsdis), filename, sep = ",", col.names = !file.exists(filename), append = T)
-    write.table(paste("CV%:",  cvpctis), filename, sep = ",", col.names = !file.exists(filename), append = T)
-    
-  }
-}
-###################################################################
-
-
-#as above but do all zones as 1 for each attribute
 ###################################################################
 for(atr in attrib) #atr<-"yield_kgha"
 {
@@ -282,10 +196,5 @@ for(atr in attrib) #atr<-"yield_kgha"
 }
 ###################################################################
 
-p<-pred$pvals
-t<-temp
-subt <- subset(t,environment != "", select = c(environment, zone))
-usubt<-unique(subt)
-mg<-merge(x=p,y=usubt,by="environment",all.x=TRUE)
-aggregate(predicted.value~zone+name,FUN=mean,data=mg)
+
 
