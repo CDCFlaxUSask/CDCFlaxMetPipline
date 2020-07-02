@@ -109,8 +109,11 @@ for(atr in attrib) #atr<-"yield_kgha"
   at<-atr
   
   print (paste("0-TheYear:" ,TheYear," attrib:",at))
+  data <- data %>% arrange(environment) #sort data first
   temp <- data %>% filter(!is.na(get(at))) %>% filter(get(at)!=0) %>% filter(get(at)!="NA")  %>% filter(get(at)!="")
 
+  
+  
   filename<-sprintf("./csv/%s.csv",at)
   
   write.csv(temp, filename)
