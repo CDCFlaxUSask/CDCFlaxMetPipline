@@ -165,14 +165,16 @@ for(atr in attrib) #atr<-"yield"_kgha"
   #use a try below incase the model doesnt work with the data
   if (HasBlock) 
   {
+   modelis="model<-asreml(fixed=get(at)~name , random=~at(environment):bloc + environment + environment:name,residual=~dsum(~units|environment),data=temp)"
    e1 <- try(model<-asreml(fixed=get(at)~name , random=~at(environment):bloc + environment + environment:name,residual=~dsum(~units|environment),data=temp))
   }
   else
   {
    #e1 <- try(model<-asreml(fixed=get(at)~name , random=~at(environment):environment + environment:name,residual=~dsum(~units|environment),data=temp))
    #e1 <- try(model<-asreml(fixed=get(at)~name , random=~environment + environment:name,residual=~dsum(~units|environment),data=temp))
+   modelis="model<-asreml(fixed=get(at)~name , random=~year+location + location:name, residual=~dsum(~units|location), data=temp)"
    e1 <- try(model<-asreml(fixed=get(at)~name , random=~year+location + location:name, residual=~dsum(~units|location), data=temp))
-
+  
   }
   
     
@@ -185,11 +187,13 @@ for(atr in attrib) #atr<-"yield"_kgha"
   {
     if (HasBlock) 
     {
+     modelis="asreml(fixed=get(at)~name, random=~environment:bloc + environment + environment:name,data=temp)"
      model<-asreml(fixed=get(at)~name, random=~environment:bloc + environment + environment:name,data=temp)
     }
     else
     {
      #model<-asreml(fixed=get(at)~name, random=~environment:environment + environment:name,data=temp)
+    modelis="asreml(fixed=get(at)~name, random=~environment + environment:name,data=temp)"
      model<-asreml(fixed=get(at)~name, random=~environment + environment:name,data=temp)
      
     }
@@ -204,7 +208,7 @@ for(atr in attrib) #atr<-"yield"_kgha"
   #if (e2test ) {pred<-predict(model,classify='year:location:name',data=temp,workspace = "300mb")}
   LastYearString<-toString(LastYear)
   
-  if (e2test ) {pred<-predict(model,classify='year:location:name',levels=list(year=LastYearString),data=temp,workspace = "300mb")}
+  if (e2test ) {pred<-predict(model,classify='year:location:name',levels=list(year=LastYearString),data=temp,workspace = "900mb")}
             
   
   filename1<-sprintf("\\ZoneAll%s-%s.csv", TheYear,at)
@@ -243,6 +247,16 @@ for(atr in attrib) #atr<-"yield"_kgha"
   Zonelist<-nrow(unique(temp[c("zone")]))
   ZonelistName<-unique(temp[c("zone")])
   
+  #this is where the LSD for the zone will be
+  
+  
+  lsdisZone = list() 
+
+  meanisZones=  list()
+  stddevisZone= list()
+  cvpctisZone= list()
+  
+
   ######################################################################################### 
   #create the means for zones x attribute 
   p<-pred$pvals
@@ -268,6 +282,35 @@ for(atr in attrib) #atr<-"yield"_kgha"
   write.table(paste("CV%:",  cvpctis), filename, sep = ",", col.names = !file.exists(filename), append = T)
   
   
+  for (p in ZonelistName$zone) {
+    print(p)
+    tempzone <- temp %>% filter(zone==p)
+    if (HasBlock) 
+    {
+      model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone)
+    }
+    else
+    {
+      model<-aov(get(at)~name+location+location+name:location,data=tempzone)
+    }
+    
+    
+    summary(model)
+    order<-tempzone %>% group_by(name) %>% summarize(n=n())
+    maxord<-max(order$n)
+    dfx<-tail(summary(model)[[1]]$`Df`, n=1)
+    msx<-tail(summary(model)[[1]]$`Mean Sq`, n=1)
+    print(abs(qt(0.05/2,dfx*1))*sqrt(msx*2/(maxord)))
+    lsdisZone[[p]]<-abs(qt(0.05/2,dfx*1))*sqrt(msx*2/(maxord))
+    meanisZones[[p]]=mean(temp[[at]], na.rm = TRUE)
+    stddevisZone[[p]]=sd(temp[[at]], na.rm = TRUE)
+    cvpctisZone[[p]]=(stddevis/meanis)*100
+    print (paste("Zone:",p," LDIS:",lsdisZone[[p]]))
+    
+    write.table(paste("Zone:",p," lsd at 5%",  lsdisZone[[p]]), filename, sep = ",", col.names = !file.exists(filename), append = T)
+    write.table(paste("Zone:",p," CV%:",  cvpctisZone[[p]]), filename, sep = ",", col.names = !file.exists(filename), append = T)
+    
+  }
   
   
   
@@ -288,7 +331,7 @@ for(atr in attrib) #atr<-"yield"_kgha"
   {
     write.table(paste("ERROR PREDICT: ",e2), filename, sep = ",", col.names = !file.exists(filename), append = T)
   } 
-  
+  write.table(paste("ASREML MODEL: ",modelis), filename, sep = ",", col.names = !file.exists(filename), append = T)
 }
 }
 ###################################################################
