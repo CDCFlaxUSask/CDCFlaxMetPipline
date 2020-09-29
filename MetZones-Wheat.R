@@ -122,7 +122,7 @@ if (HasBlock)
 data$location<-as.factor(data$location)
 data$name<-as.factor(data$name)
 #data$zone<-as.factor(data$zone)
-data$year<-as.factor(data$year)
+#data$year<-as.factor(data$year)
 data$environment<-as.factor(data$environment)
 
 
@@ -287,12 +287,11 @@ for(atr in attrib) #atr<-"yield"_kgha"
     tempzone <- temp %>% filter(zone==p)
     if (HasBlock) 
     {
-      #model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone) This is missing the year factor.
-      model<-aov(get(at)~name+location+bloc:location+year+name:location,data=tempzone)
+      model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone)
     }
     else
     {
-      #model<-aov(get(at)~name+location+location+name:location,data=tempzone) This has location twice and doesn't include year, but it should.
+      #model<-aov(get(at)~name+location+location+name:location,data=tempzone) This has location twice.
       model<-aov(get(at)~name+location+name:location,data=tempzone)
     }
     
