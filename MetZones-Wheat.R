@@ -122,7 +122,7 @@ if (HasBlock)
 data$location<-as.factor(data$location)
 data$name<-as.factor(data$name)
 #data$zone<-as.factor(data$zone)
-#data$year<-as.factor(data$year)
+data$year<-as.factor(data$year)
 data$environment<-as.factor(data$environment)
 
 
