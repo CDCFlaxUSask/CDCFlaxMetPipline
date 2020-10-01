@@ -292,7 +292,7 @@ for(atr in attrib) #atr<-"maturity"
     ###debug info to examine zoneissues using zoneissue.r as a debug stub code
     #ZonelistNamefilename<-sprintf("D:\\download\\megan\\CDCFlaxMetPipline-master\\csv\\ZonelistName%s.csv", p)
     write.csv(tempzone,ZonelistNamefilename, row.names = FALSE)
-    if (locCount>1) # use this if locations >1
+    if (locCount>1) # use this if locations > 1
     {
      if (HasBlock) 
      {
