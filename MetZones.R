@@ -147,10 +147,10 @@ for(atr in attrib) #atr<-"yield_kgha"
 
 
 #use a try below incase the model doesnt work with the data
-  e2 <- try(pred<-predict(model,classify='environment:name',data=temp))
+  e2 <- try(    pred<-predict(model,classify='environment:name',data=temp))
   e2test<-grepl("Error in asreml",e2, fixed = TRUE)
 #if initial model does not work fall back to this model below
-  if (e2test ) {pred<-predict(model,classify='environment:name',data=temp)}
+  if (e2test ) {pred<-predict(model,classify='environment:name',data=temp,workspace = "900mb")}
 
 
   

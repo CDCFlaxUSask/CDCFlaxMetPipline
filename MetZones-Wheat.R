@@ -139,7 +139,7 @@ LastYear <- yeararray[TheYearNum]
 
 
 ###################################################################
-for(atr in attrib) #atr<-"yield"_kgha"
+for(atr in attrib) #atr<-"maturity"
 {
   yeararray<-sort(yeararray,decreasing = TRUE)
   TheYear<-yeararray[1]
@@ -285,15 +285,39 @@ for(atr in attrib) #atr<-"yield"_kgha"
   for (p in ZonelistName$zone) {
     print(p)
     tempzone <- temp %>% filter(zone==p)
-    if (HasBlock) 
+	#added location count to determiine what model to use
+    locationlist<-unique(tempzone[c("location")])
+    locCount=count(locationlist)
+	#
+    ###debug info to examine zoneissues using zoneissue.r as a debug stub code
+    #ZonelistNamefilename<-sprintf("D:\\download\\megan\\CDCFlaxMetPipline-master\\csv\\ZonelistName%s.csv", p)
+    write.csv(tempzone,ZonelistNamefilename, row.names = FALSE)
+    if (locCount>1) # use this if locations >1
     {
-      model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone)
-    }
+     if (HasBlock) 
+     {
+       model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone)
+     }
+     else #If location=1 then use this no location in the model
+     {
+       #model<-aov(get(at)~name+location+location+name:location,data=tempzone) This has location twice.
+       model<-aov(get(at)~name+location+name:location,data=tempzone)
+     }
+    } 
     else
     {
-      model<-aov(get(at)~name+location+location+name:location,data=tempzone)
+      if (HasBlock) 
+      {
+        #model<-aov(get(at)~name+location+bloc:location+name:location,data=tempzone)
+        model<-aov(get(at)~name+bloc,data=tempzone)
+      }
+      else
+      {
+        #model<-aov(get(at)~name+location+location+name:location,data=tempzone) This has location twice.
+        #model<-aov(get(at)~name+location+name:location,data=tempzone)
+        model<-aov(get(at)~name+name,data=tempzone)
+      }      
     }
-    
     
     summary(model)
     order<-tempzone %>% group_by(name) %>% summarize(n=n())
